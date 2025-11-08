@@ -1,6 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
+const proverbs = [
+  {
+    text: "When spider webs unite, they can tie up a lion.",
+    origin: "Ethiopian proverb",
+  },
+  {
+    text: "A bird builds its nest little by little.",
+    origin: "African proverb",
+  },
+  {
+    text: "Little by little fills the measure.",
+    origin: "Ethiopian proverb",
+  },
+];
+
 const projects = [
   {
     title: "dafitech.org",
@@ -33,6 +48,7 @@ const projects = [
 const navLinks = [
   { label: "About", href: "#about" },
   { label: "Education", href: "#education" },
+  { label: "Wisdom", href: "#wisdom" },
   { label: "Skills", href: "#skills" },
   { label: "Projects", href: "#projects" },
   { label: "Contact", href: "#contact" },
@@ -41,8 +57,10 @@ const navLinks = [
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showToTop, setShowToTop] = useState(false);
+  const [quoteIndex, setQuoteIndex] = useState(0);
 
   const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const currentProverb = proverbs[quoteIndex];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,6 +83,34 @@ export default function App() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setQuoteIndex((prev) => (prev + 1) % proverbs.length);
+    }, 7000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    document.querySelectorAll("[data-animate]").forEach((element) => {
+      observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const closeMenu = () => setMenuOpen(false);
   const handleNavToggle = () => setMenuOpen((prev) => !prev);
@@ -109,13 +155,22 @@ export default function App() {
 
       <main>
         <section id="hero" className="hero" aria-label="Introduction">
-          <div className="hero__content">
+          <div className="hero__background" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+          <div className="hero__content" data-animate>
             <p className="hero__eyebrow">Full-Stack MERN Developer</p>
             <h1 className="hero__title">
               Dawit Abrha <span>Weldegebriel</span>
             </h1>
             <p className="hero__subtitle">
               Electrical and Computer Engineer crafting modern web experiences with the MERN stack.
+            </p>
+            <p className="hero__quote" key={currentProverb.text}>
+              “{currentProverb.text}”
+              <span>{currentProverb.origin}</span>
             </p>
             <div className="hero__actions">
               <a className="btn btn--primary" href="#projects">
@@ -131,7 +186,7 @@ export default function App() {
               </a>
             </div>
           </div>
-          <aside className="hero__side">
+          <aside className="hero__side" data-animate>
             <figure className="hero__portrait">
               <img
                 src="/dawit-abrha-weldegebriel.jpg"
@@ -161,7 +216,7 @@ export default function App() {
 
         <section id="about" className="section section--light">
           <div className="section__inner">
-            <div className="section__header">
+            <div className="section__header" data-animate>
               <h2>About</h2>
               <p>
                 I translate complex ideas into reliable digital products. With a strong grounding in
@@ -170,7 +225,7 @@ export default function App() {
               </p>
             </div>
             <div className="about__grid">
-              <div className="about__card">
+              <div className="about__card" data-animate>
                 <h3>Who I Am</h3>
                 <p>
                   I am a builder at heart—equally at home architecting APIs, crafting responsive interfaces,
@@ -178,7 +233,7 @@ export default function App() {
                   discipline ensures every project ships with quality.
                 </p>
               </div>
-              <div className="about__card">
+              <div className="about__card" data-animate>
                 <h3>What I Value</h3>
                 <ul>
                   <li>
@@ -199,12 +254,12 @@ export default function App() {
 
         <section id="education" className="section">
           <div className="section__inner">
-            <div className="section__header">
+            <div className="section__header" data-animate>
               <h2>Education</h2>
               <p>Engineering foundations combined with modern software craftsmanship.</p>
             </div>
             <div className="timeline">
-              <article className="timeline__item">
+              <article className="timeline__item" data-animate>
                 <div className="timeline__marker" />
                 <div className="timeline__content">
                   <h3>Master of Science, Electrical and Computer Engineering</h3>
@@ -215,7 +270,7 @@ export default function App() {
                   </p>
                 </div>
               </article>
-              <article className="timeline__item">
+              <article className="timeline__item" data-animate>
                 <div className="timeline__marker" />
                 <div className="timeline__content">
                   <h3>Bachelor of Science, Electrical and Computer Engineering</h3>
@@ -230,14 +285,35 @@ export default function App() {
           </div>
         </section>
 
+        <section id="wisdom" className="section section--accent">
+          <div className="section__inner">
+            <div className="section__header" data-animate>
+              <h2>Guiding Proverbs</h2>
+              <p>
+                Culture and code go hand in hand. These sayings remind me to build with patience,
+                community, and courage.
+              </p>
+            </div>
+            <div className="proverbs__grid">
+              {proverbs.map((proverb, index) => (
+                <article className="proverb-card" key={proverb.text} data-animate>
+                  <span className="proverb-card__index">{String(index + 1).padStart(2, "0")}</span>
+                  <p className="proverb-card__text">“{proverb.text}”</p>
+                  <span className="proverb-card__origin">{proverb.origin}</span>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="skills" className="section section--light">
           <div className="section__inner">
-            <div className="section__header">
+            <div className="section__header" data-animate>
               <h2>Skills</h2>
               <p>The tools and practices I rely on to deliver production-ready solutions.</p>
             </div>
             <div className="skills__grid">
-              <div className="skills__group">
+              <div className="skills__group" data-animate>
                 <h3>Frontend</h3>
                 <ul>
                   <li>React.js &amp; Next.js</li>
@@ -246,7 +322,7 @@ export default function App() {
                   <li>Responsive UI Design</li>
                 </ul>
               </div>
-              <div className="skills__group">
+              <div className="skills__group" data-animate>
                 <h3>Backend</h3>
                 <ul>
                   <li>Node.js &amp; Express</li>
@@ -255,7 +331,7 @@ export default function App() {
                   <li>Authentication &amp; Authorization</li>
                 </ul>
               </div>
-              <div className="skills__group">
+              <div className="skills__group" data-animate>
                 <h3>DevOps &amp; Tools</h3>
                 <ul>
                   <li>Git &amp; GitHub Actions</li>
@@ -264,7 +340,7 @@ export default function App() {
                   <li>Agile &amp; Scrum Collaboration</li>
                 </ul>
               </div>
-              <div className="skills__group">
+              <div className="skills__group" data-animate>
                 <h3>Soft Skills</h3>
                 <ul>
                   <li>Systems Thinking</li>
@@ -279,13 +355,13 @@ export default function App() {
 
         <section id="projects" className="section">
           <div className="section__inner">
-            <div className="section__header">
+            <div className="section__header" data-animate>
               <h2>Featured Projects</h2>
               <p>A snapshot of the products I've delivered for organizations and communities.</p>
             </div>
             <div className="projects__grid">
               {projects.map((project) => (
-                <article className="project-card" key={project.title}>
+                <article className="project-card" key={project.title} data-animate>
                   <div className="project-card__body">
                     <h3>{project.title}</h3>
                     <p>{project.description}</p>
@@ -324,14 +400,14 @@ export default function App() {
 
       <footer id="contact" className="site-footer">
         <div className="site-footer__inner">
-          <div className="site-footer__intro">
+          <div className="site-footer__intro" data-animate>
             <h2>Let's Build Something Great</h2>
             <p>
               I'm always open to collaborating on impactful projects, mentoring developers, or
               brainstorming new ideas.
             </p>
           </div>
-          <div className="site-footer__actions">
+          <div className="site-footer__actions" data-animate>
             <a className="btn btn--primary" href="mailto:dawitabrha.dev@gmail.com">
               Email Me
             </a>
@@ -344,7 +420,7 @@ export default function App() {
               GitHub
             </a>
           </div>
-          <div className="site-footer__meta">
+          <div className="site-footer__meta" data-animate>
             <span>MERN developer based in Ethiopia</span>
             <span>&copy; {currentYear} Dawit Abrha Weldegebriel</span>
           </div>
